@@ -16,6 +16,17 @@ function capitalizeFirst(strArray) {
   );
 }
 
+function capitalizeFirst_Teacher (array) {
+  if (array.length === 1) {
+    return [array[0][0].toUpperCase() + array[0].substr(1)];
+  }
+  const res = capitalizeFirst_Teacher(array.slice(0, -1));
+  const string = array.slice(array.length - 1)[0][0].toUpperCase() + array.slice(array.length-1)[0].substr(1);
+  res.push(string);
+  return res;
+}
+
+
 // console.log(capitalizeFirst(['car', 'taco', 'banana'])); // ['Car','Taco','Banana']
 
 //---------------------------------------------------------------------------------
@@ -40,6 +51,17 @@ function nestedEvenSum(obj) {
 
   }
 
+  return sum;
+}
+
+function nestedEvenSum_Teacher (obj, sum=0) {
+  for (var key in obj) {
+    if (typeof obj[key] === 'object'){
+      sum += nestedEvenSum_Teacher(obj[key]);
+    } else if (typeof obj[key] === 'number' && obj[key] % 2 === 0){
+      sum += obj[key];
+    }
+  }
   return sum;
 }
 
@@ -77,11 +99,24 @@ const obj2 = {
  */
 function capitalizeWords (arr) {
   if(arr.length === 0) return [];
-  return [arr.shift().toUpperCase()].concat(capitalizeWords(arr.slice(0, arr.length)))
+  return [arr.shift().toUpperCase()]
+    .concat(capitalizeWords(arr.slice(0, arr.length)))
+}
+
+function capitalizeWords_Teacher (array) {
+  if (array.length === 1) {
+    return [array[0].toUpperCase()];
+  }
+  let res = capitalizeWords_Teacher(array.slice(0, -1));
+  console.log(array.slice(0, -1));
+  res.push(array.slice(array.length-1)[0].toUpperCase());
+
+  return res;
+
 }
 
 let words = ['i', 'am', 'learning', 'recursion'];
-// console.log(capitalizeWords(words)); // ['I', 'AM', 'LEARNING', 'RECURSION']
+// console.log(capitalizeWords_Teacher(words)); // ['I', 'AM', 'LEARNING', 'RECURSION']
 
 
 
@@ -94,24 +129,41 @@ let words = ['i', 'am', 'learning', 'recursion'];
  */
 
 function stringifyNumbers(obj) {
+  let result = {};
 
   for(let prop in obj) {
     let currentProp = obj[prop];
-    if(typeof currentProp === "number") {
-      obj[prop] = currentProp.toString();
-    } else if(typeof currentProp === "object") {
-      obj[prop] =  stringifyNumbers(currentProp)
+    if(currentProp.constructor === Number) {
+      result[prop] = currentProp.toString();
+    } else if(currentProp.constructor === Object) {
+      result[prop] = stringifyNumbers(currentProp)
+    } else {
+      result[prop] = currentProp;
     }
   }
 
-  return obj;
+  return result;
+}
+
+function stringifyNumbers_Teacher(obj) {
+  var newObj = {};
+  for (var key in obj) {
+    if (typeof obj[key] === 'number') {
+      newObj[key] = obj[key].toString();
+    } else if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
+      newObj[key] = stringifyNumbers_Teacher(obj[key]);
+    } else {
+      newObj[key] = obj[key];
+    }
+  }
+  return newObj;
 }
 
 
 
 let obj = {
     num: 1,
-    test: [],
+    test: [1,2,3],
     data: {
         val: 4,
         info: {
@@ -121,7 +173,7 @@ let obj = {
     }
 }
 
-console.log(stringifyNumbers(obj))
+// console.log(stringifyNumbers(obj))
 /* expected
 {
     num: "1",
@@ -140,3 +192,41 @@ console.log(stringifyNumbers(obj))
 
 
 //---------------------------------------------------------------------------------
+
+/**
+ * Write a function called&nbsp;<code>collectStrings</code>&nbsp;which accepts an object and
+ * returns an array of all the values in the object that have a typeof string
+ * */
+
+function collectStrings(obj) {
+  let result = [];
+
+  for(let key in obj) {
+    let currentProp = obj[key];
+    if(typeof currentProp === "string") {
+      result.push(currentProp)
+    } else if(currentProp.constructor === Object) {
+      result = result.concat(collectStrings(currentProp))
+    }
+  }
+
+  return result;
+}
+
+const objCollectStrings = {
+  stuff: "foo",
+  data: {
+    val: {
+      thing: {
+        info: "bar",
+        moreInfo: {
+          evenMoreInfo: {
+            weMadeIt: "baz"
+          }
+        }
+      }
+    }
+  }
+}
+
+// console.log(collectStrings(objCollectStrings)) // ["foo", "bar", "baz"])
